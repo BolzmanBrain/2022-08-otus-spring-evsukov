@@ -1,16 +1,14 @@
 package ru.otus.spring.domain;
 
 import ru.otus.spring.domain.dto.Option;
+import ru.otus.spring.domain.dto.QuestionStatus;
+import ru.otus.spring.services.AnswerFactory;
+import ru.otus.spring.services.SingleSelectAnswerFactory;
 
 import java.util.List;
 
 public class SingleSelectQuestion extends Question {
     private static final String ANSWER_INSTRUCTION = "Select one of the options.";
-
-    public static SingleSelectQuestion createFromStringRepresentation(int questionId, String text, List<Option> options, String correctAnswerStringRepresentation) {
-        SingleSelectAnswer correctAnswer = SingleSelectAnswer.of(correctAnswerStringRepresentation);
-        return new SingleSelectQuestion(questionId, text, options, correctAnswer);
-    }
 
     public SingleSelectQuestion(int questionId, String text, List<Option> options, SingleSelectAnswer correctAnswer) {
         super(questionId, text, options, correctAnswer);
@@ -23,7 +21,20 @@ public class SingleSelectQuestion extends Question {
 
     @Override
     public boolean giveAnswer(String answerStringRepresentation) {
-        SingleSelectAnswer answer = SingleSelectAnswer.of(answerStringRepresentation);
+        AnswerFactory answerFactory = new SingleSelectAnswerFactory();
+        Answer answer = answerFactory.createAnswer(answerStringRepresentation);
         return checkAnswerAndSetQuestionStatus(answer);
+    }
+
+    private boolean checkAnswerAndSetQuestionStatus(Answer answer) {
+        givenAnswer = answer;
+        boolean isAnswerCorrect = correctAnswer.isEqual(answer);
+
+        if(isAnswerCorrect) {
+            questionStatus = QuestionStatus.CORRECT_ANSWER;
+        } else {
+            questionStatus = QuestionStatus.WRONG_ANSWER;
+        }
+        return isAnswerCorrect;
     }
 }

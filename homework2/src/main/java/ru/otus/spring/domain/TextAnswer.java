@@ -7,10 +7,6 @@ public class TextAnswer implements Answer {
         this.optionText = string;
     }
 
-    public static TextAnswer of(String string) {
-        return new TextAnswer(string);
-    }
-
     @Override
     public boolean isEqual(Answer otherAnswer) {
         TextAnswer otherTextAnswer = (TextAnswer)otherAnswer;

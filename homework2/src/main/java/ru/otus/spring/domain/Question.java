@@ -11,14 +11,14 @@ public abstract class Question {
     public final String text;
 
     @Getter
-    private final Answer correctAnswer;
+    protected final Answer correctAnswer;
 
     @Getter
     private final List<Option> options;
 
     @Getter
-    private QuestionStatus questionStatus = QuestionStatus.NO_ANSWER;
-    private Answer givenAnswer;
+    protected QuestionStatus questionStatus = QuestionStatus.NO_ANSWER;
+    protected Answer givenAnswer;
 
     public Question(int questionId, String text, List<Option> options, Answer correctAnswer) {
         this.questionId = questionId;
@@ -36,15 +36,4 @@ public abstract class Question {
 
     public abstract boolean giveAnswer(String answerStringRepresentation);
 
-    protected boolean checkAnswerAndSetQuestionStatus(Answer answer) {
-        givenAnswer = answer;
-        boolean isAnswerCorrect = correctAnswer.isEqual(answer);
-
-        if(isAnswerCorrect) {
-            questionStatus = QuestionStatus.CORRECT_ANSWER;
-        } else {
-            questionStatus = QuestionStatus.WRONG_ANSWER;
-        }
-        return isAnswerCorrect;
-    }
 }

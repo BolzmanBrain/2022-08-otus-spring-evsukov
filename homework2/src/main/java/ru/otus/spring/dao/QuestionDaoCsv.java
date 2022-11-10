@@ -1,16 +1,16 @@
 package ru.otus.spring.dao;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.bean.CsvToBeanBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.otus.spring.domain.*;
+import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.dto.Option;
+import ru.otus.spring.domain.dto.QuestionDto;
+import ru.otus.spring.services.QuestionFactory;
+import ru.otus.spring.utils.FileSerializationUtil;
 
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -18,104 +18,50 @@ import java.util.List;
 
 @Component
 public class QuestionDaoCsv implements QuestionDao {
-    private static final String TEXT_QUESTION_TYPE_ID = "t";
-    private static final String SINGLE_SELECT_QUESTION_TYPE_ID = "ss";
-    private static final String MULTI_SELECT_QUESTION_TYPE_ID = "ms";
-
     private final String questionsFilename;
     private final String optionsFilename;
+    private final FileSerializationUtil serializationUtil;
+    private final QuestionFactory questionFactory;
 
-    public QuestionDaoCsv(@Value("${filename.questions}") String questionsFilename, @Value("${filename.options}")String optionsFilename) {
+    @Autowired
+    public QuestionDaoCsv(@Value("${filename.questions}") String questionsFilename, @Value("${filename.options}")String optionsFilename, FileSerializationUtil serializationUtil, QuestionFactory questionFactory) {
         this.questionsFilename = questionsFilename;
         this.optionsFilename = optionsFilename;
+        this.serializationUtil = serializationUtil;
+        this.questionFactory = questionFactory;
     }
 
     @Override
     public List<Question> readQuestions() throws Exception {
         List<Option> options = readOptions();
+        List<Option> optionsForCurrentQuestion;
+        List<QuestionDto> questionDtos = (List<QuestionDto>)(List<?>)serializationUtil.serializeFile(questionsFilename, QuestionDto.class);
         List<Question> questions = new ArrayList<>();
 
-        File questionsFile = getFileFromResource(questionsFilename);
-        FileReader questionsFileReader = new FileReader(questionsFile);
-        CSVReader csvReader = new CSVReaderBuilder(questionsFileReader)
-                .withSkipLines(1)
-                .build();
-
-        String[] lineValues = csvReader.readNext();
-        while(lineValues != null) {
-            Question newQuestion = createQuestion(lineValues, options);
-            questions.add(newQuestion);
-            lineValues = csvReader.readNext();
+        for(QuestionDto questionDto : questionDtos) {
+            optionsForCurrentQuestion = getOptionsForQuestionId(options, questionDto.getQuestionId());
+            Question question = questionFactory.createQuestion(questionDto, optionsForCurrentQuestion);
+            questions.add(question);
         }
         return questions;
     }
 
-    private Question createQuestion(String[] values, List<Option> options) throws Exception{
-        int questionId = Integer.parseInt(values[0]);
-        String text = values[1];
-        String questionTypeId = values[2];
-        String correctAnswerValue = values[3];
-
-        List<Option> filteredOptions;
-        Question result;
-
-        switch (questionTypeId) {
-            case TEXT_QUESTION_TYPE_ID:
-                result = TextQuestion.createFromStringRepresentation(questionId, text, correctAnswerValue);
-                break;
-
-            case SINGLE_SELECT_QUESTION_TYPE_ID:
-                filteredOptions = filterOptionsByQuestionId(options, questionId);
-                result = SingleSelectQuestion.createFromStringRepresentation(questionId, text, filteredOptions, correctAnswerValue);
-                break;
-
-            case MULTI_SELECT_QUESTION_TYPE_ID:
-                filteredOptions = filterOptionsByQuestionId(options, questionId);
-                result = MultiSelectQuestion.createFromStringRepresentation(questionId, text, filteredOptions, correctAnswerValue);
-                break;
-
-            default:
-                throw new Exception("Неизвестный тип вопроса");
-        }
-        return result;
-    }
-
-    private List<Option> filterOptionsByQuestionId(List<Option> options, int questionId) {
+    private List<Option> getOptionsForQuestionId(List<Option> options, int questionId) {
         List<Option> filteredOptions = new ArrayList<>();
+        List<Option> optionsCopy = new ArrayList<>(options);
 
-        for(Option option : options) {
+        for(Option option : optionsCopy) {
             if(option.getQuestionId() == questionId) {
                 filteredOptions.add(option);
+                options.remove(option);
             }
         }
         return filteredOptions;
     }
 
     private List<Option> readOptions() throws Exception {
-        File optionsFile= getFileFromResource(optionsFilename);
-        List<Option> options = new CsvToBeanBuilder(new FileReader(optionsFile))
-                .withType(Option.class)
-                .withSkipLines(1)
-                .build()
-                .parse();
+        List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(optionsFilename, Option.class);
         return options;
-    }
-
-    private File getFileFromResource(String fileName) throws Exception {
-        try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            URL resource = classLoader.getResource(fileName);
-            if (resource == null) {
-                throw new IllegalArgumentException("file not found! " + fileName);
-            } else {
-                // failed if files have whitespaces or special characters
-                //return new File(resource.getFile());
-                return new File(resource.toURI());
-            }
-         }
-        catch (URISyntaxException e) {
-            throw new Exception(String.format("File %s not found",fileName));
-        }
     }
 
     private static void printFile(File file) {

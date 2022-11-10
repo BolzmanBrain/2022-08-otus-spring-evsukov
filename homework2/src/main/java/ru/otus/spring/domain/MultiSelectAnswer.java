@@ -14,16 +14,6 @@ public class MultiSelectAnswer implements Answer {
         }
     }
 
-    public static MultiSelectAnswer of(String commaSeparatedString) {
-        String[] correctOptionIdsString = commaSeparatedString.split(",");
-        int[] correctOptionIds = new int[correctOptionIdsString.length];
-
-        for(int i = 0; i < correctOptionIdsString.length; i++) {
-            correctOptionIds[i] = Integer.parseInt(correctOptionIdsString[i]);
-        }
-        return new MultiSelectAnswer(correctOptionIds);
-    }
-
     @Override
     public boolean isEqual(Answer otherAnswer) {
         // TODO: exception handling
