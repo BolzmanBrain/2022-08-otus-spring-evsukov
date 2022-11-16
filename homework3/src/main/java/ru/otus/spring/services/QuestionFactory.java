@@ -7,5 +7,5 @@ import ru.otus.spring.domain.dto.QuestionDto;
 import java.util.List;
 
 public interface QuestionFactory {
-    Question createQuestion(QuestionDto questionDto, List<Option> options) throws Exception;
+    Question createQuestion(QuestionDto questionDto, List<Option> options);
 }

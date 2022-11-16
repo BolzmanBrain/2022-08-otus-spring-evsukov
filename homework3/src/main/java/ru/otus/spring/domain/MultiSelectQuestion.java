@@ -3,8 +3,8 @@ package ru.otus.spring.domain;
 import ru.otus.spring.configs.AppMessageCodes;
 import ru.otus.spring.domain.dto.Option;
 import ru.otus.spring.domain.dto.QuestionStatus;
-import ru.otus.spring.services.AnswerFactory;
-import ru.otus.spring.services.MultiSelectAnswerFactory;
+import ru.otus.spring.domain.factories.AnswerFactory;
+import ru.otus.spring.domain.factories.MultiSelectAnswerFactory;
 
 import java.util.List;
 

@@ -4,6 +4,10 @@ import org.springframework.stereotype.Service;
 import ru.otus.spring.domain.*;
 import ru.otus.spring.domain.dto.Option;
 import ru.otus.spring.domain.dto.QuestionDto;
+import ru.otus.spring.domain.factories.AnswerFactory;
+import ru.otus.spring.domain.factories.MultiSelectAnswerFactory;
+import ru.otus.spring.domain.factories.SingleSelectAnswerFactory;
+import ru.otus.spring.domain.factories.TextAnswerFactory;
 
 import java.util.List;
 
@@ -15,11 +19,8 @@ public class QuestionFactoryImpl implements QuestionFactory {
     private static final String MULTI_SELECT_QUESTION_TYPE_ID = "ms";
 
     @Override
-    public Question createQuestion(QuestionDto questionDto, List<Option> options) throws Exception {
-        int questionId = questionDto.getQuestionId();
-        String text = questionDto.getText();
+    public Question createQuestion(QuestionDto questionDto, List<Option> options) {
         String questionTypeId = questionDto.getQuestionTypeId();
-        String answerStringRepresentation = questionDto.getCorrectAnswerStringRepresentation();
 
         Question result;
         AnswerFactory answerFactory;
@@ -44,7 +45,7 @@ public class QuestionFactoryImpl implements QuestionFactory {
                 break;
 
             default:
-                throw new Exception("Неизвестный тип вопроса");
+                throw new RuntimeException("Неизвестный тип вопроса");
         }
         return result;
     }

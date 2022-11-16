@@ -30,11 +30,17 @@ public class QuestionDaoCsv implements QuestionDao {
     }
 
     @Override
-    public List<Question> readQuestions() throws Exception {
+    public List<Question> readQuestions() {
         List<Option> options = readOptions();
         List<Option> optionsForCurrentQuestion;
-        List<QuestionDto> questionDtos = (List<QuestionDto>)(List<?>)serializationUtil.serializeFile(appProps.getQuestions_filename(), QuestionDto.class);
         List<Question> questions = new ArrayList<>();
+        List<QuestionDto> questionDtos;
+
+        try {
+            questionDtos = (List<QuestionDto>)(List<?>)serializationUtil.serializeFile(appProps.getQuestions_filename(), QuestionDto.class);
+        }catch (Exception e) {
+            throw new RuntimeException("Не удалось сериализировать вопросы");
+        }
 
         for(QuestionDto questionDto : questionDtos) {
             optionsForCurrentQuestion = getOptionsForQuestionId(options, questionDto.getQuestionId());
@@ -57,9 +63,14 @@ public class QuestionDaoCsv implements QuestionDao {
         return filteredOptions;
     }
 
-    private List<Option> readOptions() throws Exception {
-        List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(appProps.getOptions_filename(), Option.class);
-        return options;
+    private List<Option> readOptions() {
+        try {
+            List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(appProps.getOptions_filename(), Option.class);
+            return options;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Не удалось загрузить варианты ответов");
+        }
     }
 
     private static void printFile(File file) {

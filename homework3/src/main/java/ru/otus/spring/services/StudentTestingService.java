@@ -18,7 +18,7 @@ import java.util.List;
 // The "CommandLineRunner" is implemented to make this class run when
 // SpringApplication.run is called in the class annotated with @SpringBootApplication
 @Service
-public class TestService implements CommandLineRunner {
+public class StudentTestingService implements CommandLineRunner {
     private final QuestionPresentation questionPresentation;
     private final QuestionDao questionDao;
     private TestResults testResults;
@@ -28,14 +28,14 @@ public class TestService implements CommandLineRunner {
     private final AppProps appProps;
 
     @Autowired
-    public TestService(QuestionPresentation questionPresentation, QuestionDao questionDao, AppProps appProps) {
+    public StudentTestingService(QuestionPresentation questionPresentation, QuestionDao questionDao, AppProps appProps) {
         this.questionPresentation = questionPresentation;
         this.questionDao = questionDao;
         this.appProps = appProps;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         requestUserData();
         tryPrepareQuestions();
         questionPresentation.showMessage(AppMessageCodes.TEST_START);

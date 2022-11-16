@@ -6,21 +6,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Locale;
 
+@Getter
+@Setter
 @ConfigurationProperties(prefix = "application")
 public class AppProps {
-    @Getter
-    @Setter
+
     private String options_filename;
 
-    @Getter
-    @Setter
     private String questions_filename;
 
-    @Getter
-    @Setter
     private double percent_of_correct_answers_required;
 
-    @Getter
-    @Setter
     private Locale locale;
 }

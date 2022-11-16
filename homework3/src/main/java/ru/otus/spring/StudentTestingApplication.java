@@ -8,9 +8,9 @@ import ru.otus.spring.configs.AppProps;
 // Same as @SpringBootConfiguration @EnableAutoConfiguration @ComponentScan
 @SpringBootApplication
 @EnableConfigurationProperties(AppProps.class)
-public class StudentTestingAppApplication {
+public class StudentTestingApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(StudentTestingAppApplication.class, args);
+		SpringApplication.run(StudentTestingApplication.class, args);
 	}
 }

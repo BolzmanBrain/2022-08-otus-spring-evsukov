@@ -1,6 +1,5 @@
-package ru.otus.spring.services;
+package ru.otus.spring.domain.factories;
 
-import ru.otus.spring.domain.Answer;
 import ru.otus.spring.domain.SingleSelectAnswer;
 
 public class SingleSelectAnswerFactory implements AnswerFactory {
