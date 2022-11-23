@@ -71,15 +71,14 @@ public class QuestionDaoCsv implements QuestionDao {
         return filteredOptions;
     }
 
-    @SneakyThrows
     private List<Option> readOptions() {
-        //try {
+        try {
             List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(resourceFilesProvider.getOptionsFileString(), Option.class);
             return options;
-//        }
-//        catch (Exception e) {
-//            throw new FailedToSerializeResource("Failed to serialize options",e);
-//        }
+        }
+        catch (Exception e) {
+            throw new FailedToSerializeResource("Failed to serialize options",e);
+        }
     }
 
     private static void printFile(File file) {

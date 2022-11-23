@@ -3,6 +3,7 @@ package ru.otus.spring.configs;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import ru.otus.spring.aspects.LogMethod;
 
 import java.util.Locale;
 
@@ -20,9 +21,9 @@ public class AppProps implements LocaleProvider, ResourceFilesProvider {
         return locale;
     }
 
+    @LogMethod
     @Override
     public String getOptionsFileString() {
-        System.out.println(String.format(options_filename, locale));
         return String.format(options_filename, locale);
     }
 
