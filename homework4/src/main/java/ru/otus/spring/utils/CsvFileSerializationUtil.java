@@ -22,12 +22,12 @@ public class CsvFileSerializationUtil implements FileSerializationUtil {
         return objects;
     }
 
-    private File getFileFromResource(String fileName) throws Exception {
+    private File getFileFromResource(String filename) throws Exception {
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-            URL resource = classLoader.getResource(fileName);
+            URL resource = classLoader.getResource(filename);
             if (resource == null) {
-                throw new IllegalArgumentException("file not found! " + fileName);
+                throw new IllegalArgumentException("file not found! " + filename);
             } else {
                 // failed if files have whitespaces or special characters
                 //return new File(resource.getFile());
@@ -35,7 +35,7 @@ public class CsvFileSerializationUtil implements FileSerializationUtil {
             }
         }
         catch (URISyntaxException e) {
-            throw new Exception(String.format("File %s not found",fileName));
+            throw new Exception(String.format("File %s not found",filename));
         }
     }
 }

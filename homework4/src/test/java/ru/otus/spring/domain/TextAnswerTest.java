@@ -17,7 +17,7 @@ class TextAnswerTest {
         assertEquals(VALUE, answer.getStringRepresentation());
     }
 
-    @DisplayName("isEqual() works while answers are equal")
+    @DisplayName("isEqual() works correctly while answers are equal")
     @Test
     void shouldIsEqualWorkCorrectlyWhileAnswersAreEqual() {
         final String VALUE = "Answer's value";
@@ -28,7 +28,7 @@ class TextAnswerTest {
         assertTrue(answer1.isEqual(answer2));
     }
 
-    @DisplayName("isEqual() works while answers are not equal")
+    @DisplayName("isEqual() works correctly while answers are not equal")
     @Test
     void shouldIsEqualWorkCorrectlyWhileAnswersAreNotEqual() {
         Answer answer1 = new TextAnswer("Answer's value 1");

@@ -14,7 +14,7 @@ class MultiSelectAnswerTest {
         assertEquals("1,2", answer.getStringRepresentation());
     }
 
-    @DisplayName("isEqual() works while answers are equal")
+    @DisplayName("isEqual() works correctly while answers are equal")
     @Test
     void shouldIsEqualWorkCorrectlyWhileAnswersAreEqual() {
         Answer answer1 = new MultiSelectAnswer(new int[]{1,2,3});
@@ -23,7 +23,7 @@ class MultiSelectAnswerTest {
         assertTrue(answer1.isEqual(answer2));
     }
 
-    @DisplayName("isEqual() works while answers are not equal")
+    @DisplayName("isEqual() works correctly while answers are not equal")
     @Test
     void shouldIsEqualWorkCorrectlyWhileAnswersAreNotEqual() {
         Answer answer1 = new MultiSelectAnswer(new int[]{1,2,3});

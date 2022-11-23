@@ -1,0 +1,6 @@
+question_id,question_text,question_type,correct_answer
+1,How many quarks are there in a proton?,t,3
+2,Which second name does Stephen Hawking have?,ss,1
+3,Check all the fruit below.,ms,"1,2"
+4,Who invented absolute temperature scale?,t,Kelvin
+5,What is the closest planet to the Sun?,ss,2

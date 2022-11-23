@@ -4,7 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.spring.domain.dto.Option;
 import ru.otus.spring.domain.dto.QuestionDto;
-import ru.otus.spring.services.QuestionFactoryImpl;
+import ru.otus.spring.domain.dto.QuestionTypes;
+import ru.otus.spring.services.QuestionFactoryProviderServiceImpl;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ class CsvFileSerializationUtilTest {
     @Test
     void shouldSerializeQuestionsCorrectly() throws Exception {
         FileSerializationUtil serializationUtil = new CsvFileSerializationUtil();
-        List<Object> objectList = serializationUtil.serializeFile("questions.csv", QuestionDto.class);
+        List<Object> objectList = serializationUtil.serializeFile("questions_en.csv", QuestionDto.class);
         QuestionDto dto = (QuestionDto)objectList.get(0);
 
         assertAll("question serialization",
                 () -> assertEquals(3, dto.getQuestionId()),
                 () -> assertEquals("question_3.text", dto.getText()),
-                () -> assertEquals(QuestionFactoryImpl.MULTI_SELECT_QUESTION_TYPE_ID, dto.getQuestionTypeId()),
+                () -> assertEquals(QuestionTypes.MULTI_SELECT_QUESTION, dto.getQuestionTypeId()),
                 () -> assertEquals("1,2", dto.getCorrectAnswerStringRepresentation()),
                 () -> assertEquals(1, objectList.size()));
     }
@@ -33,7 +34,7 @@ class CsvFileSerializationUtilTest {
     @Test
     void shouldSerializeOptionsCorrectly() throws Exception {
         FileSerializationUtil serializationUtil = new CsvFileSerializationUtil();
-        List<Object> objectList = serializationUtil.serializeFile("options.csv", Option.class);
+        List<Object> objectList = serializationUtil.serializeFile("options_en.csv", Option.class);
         Option dto = (Option)objectList.get(0);
 
         assertAll("question serialization",

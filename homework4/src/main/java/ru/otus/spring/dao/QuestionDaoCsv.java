@@ -1,12 +1,15 @@
 package ru.otus.spring.dao;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.otus.spring.configs.AppProps;
+import ru.otus.spring.configs.ResourceFilesProvider;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.dto.Option;
 import ru.otus.spring.domain.dto.QuestionDto;
-import ru.otus.spring.services.QuestionFactory;
+import ru.otus.spring.domain.factories.QuestionAbstractFactory;
+import ru.otus.spring.exceptions.FailedToSerializeResource;
+import ru.otus.spring.services.QuestionFactoryProviderService;
 import ru.otus.spring.utils.FileSerializationUtil;
 
 import java.io.File;
@@ -18,15 +21,15 @@ import java.util.List;
 
 @Component
 public class QuestionDaoCsv implements QuestionDao {
-    private final AppProps appProps;
+    private final ResourceFilesProvider resourceFilesProvider;
     private final FileSerializationUtil serializationUtil;
-    private final QuestionFactory questionFactory;
+    private final QuestionFactoryProviderService questionFactoryProvider;
 
     @Autowired
-    public QuestionDaoCsv(AppProps appProps, FileSerializationUtil serializationUtil, QuestionFactory questionFactory) {
-        this.appProps = appProps;
+    public QuestionDaoCsv(ResourceFilesProvider resourceFilesProvider, FileSerializationUtil serializationUtil, QuestionFactoryProviderService questionFactoryProvider) {
+        this.resourceFilesProvider = resourceFilesProvider;
         this.serializationUtil = serializationUtil;
-        this.questionFactory = questionFactory;
+        this.questionFactoryProvider = questionFactoryProvider;
     }
 
     @Override
@@ -37,17 +40,22 @@ public class QuestionDaoCsv implements QuestionDao {
         List<QuestionDto> questionDtos;
 
         try {
-            questionDtos = (List<QuestionDto>)(List<?>)serializationUtil.serializeFile(appProps.getQuestions_filename(), QuestionDto.class);
+            questionDtos = (List<QuestionDto>)(List<?>)serializationUtil.serializeFile(resourceFilesProvider.getQuestionsFileString(), QuestionDto.class);
         }catch (Exception e) {
-            throw new RuntimeException("Failed to serialize questions");
+            throw new FailedToSerializeResource("Failed to serialize questions",e);
         }
 
         for(QuestionDto questionDto : questionDtos) {
             optionsForCurrentQuestion = getOptionsForQuestionId(options, questionDto.getQuestionId());
-            Question question = questionFactory.createQuestion(questionDto, optionsForCurrentQuestion);
+            Question question = createQuestion(questionDto, optionsForCurrentQuestion);
             questions.add(question);
         }
         return questions;
+    }
+
+    private Question createQuestion(QuestionDto dto, List<Option> options) {
+        QuestionAbstractFactory factory = questionFactoryProvider.getQuestionFactory(dto.getQuestionTypeId());
+        return factory.createQuestion(dto, options);
     }
 
     private List<Option> getOptionsForQuestionId(List<Option> options, int questionId) {
@@ -63,14 +71,15 @@ public class QuestionDaoCsv implements QuestionDao {
         return filteredOptions;
     }
 
+    @SneakyThrows
     private List<Option> readOptions() {
-        try {
-            List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(appProps.getOptions_filename(), Option.class);
+        //try {
+            List<Option> options = (List<Option>)(List<?>)serializationUtil.serializeFile(resourceFilesProvider.getOptionsFileString(), Option.class);
             return options;
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Не удалось загрузить варианты ответов");
-        }
+//        }
+//        catch (Exception e) {
+//            throw new FailedToSerializeResource("Failed to serialize options",e);
+//        }
     }
 
     private static void printFile(File file) {

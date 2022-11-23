@@ -6,17 +6,12 @@ import ru.otus.spring.domain.dto.QuestionStatus;
 
 import java.util.List;
 
+@Getter
 public abstract class Question {
-    public final int questionId;
-    public final String text;
-
-    @Getter
+    protected final int questionId;
+    protected final String text;
     protected final Answer correctAnswer;
-
-    @Getter
-    private final List<Option> options;
-
-    @Getter
+    protected final List<Option> options;
     protected QuestionStatus questionStatus = QuestionStatus.NO_ANSWER;
     protected Answer givenAnswer;
 
@@ -32,8 +27,18 @@ public abstract class Question {
         questionStatus = QuestionStatus.NO_ANSWER;
     }
 
-    public abstract String getAnswerInstruction();
+    public boolean giveAnswer(Answer answer) {
+        givenAnswer = answer;
+        boolean isAnswerCorrect = correctAnswer.isEqual(answer);
 
-    public abstract boolean giveAnswer(String answerStringRepresentation);
+        if(isAnswerCorrect) {
+            questionStatus = QuestionStatus.CORRECT_ANSWER;
+        } else {
+            questionStatus = QuestionStatus.WRONG_ANSWER;
+        }
+        return isAnswerCorrect;
+    }
+
+    public abstract String getQuestionTypeId();
 
 }

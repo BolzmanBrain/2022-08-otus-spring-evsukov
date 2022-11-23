@@ -8,7 +8,9 @@ public class MultiSelectAnswer implements Answer {
     private final Set<Integer> optionIds;
 
     public MultiSelectAnswer(int[] optionIdsArray) {
-        optionIds = Arrays.stream(optionIdsArray).boxed().collect(Collectors.toSet());
+        optionIds = Arrays.stream(optionIdsArray)
+                .boxed()
+                .collect(Collectors.toSet());
     }
 
     @Override
