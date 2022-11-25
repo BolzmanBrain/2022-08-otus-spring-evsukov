@@ -1,0 +1,10 @@
+spring:
+  messages:
+    basename: "i18n/appmessages"
+    encoding: "UTF-8"
+
+application:
+  options_filename: "options_%s.csv"
+  questions_filename: "questions_%s.csv"
+  percent_of_correct_answers_required: 80.0
+  locale: "en"
