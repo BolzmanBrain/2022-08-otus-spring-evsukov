@@ -5,11 +5,11 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.dao.BookDao;
-import ru.otus.spring.dao.dto.BookDto;
+import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
-import ru.otus.spring.presentation.BookToStringConvertor;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookShell {
     private final BookDao bookDao;
-    private final BookToStringConvertor bookToStringConvertor;
-
     @ShellMethod(value = "Select books", key = {"select book", "sb"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Integer id) {
         if(Objects.isNull(id)) {
@@ -35,14 +33,14 @@ public class BookShell {
     private String outputAllBooks() {
         List<Book> books = bookDao.getAll();
         return books.stream()
-                .map(bookToStringConvertor::convertToString)
+                .map(Book::toString)
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private String outputBookById(int id) {
         try {
             Book book = bookDao.getById(id).orElseThrow();
-            return bookToStringConvertor.convertToString(book);
+            return book.toString();
         }
         catch (NoSuchElementException e) {
             return UserMessages.NO_DATA_FOUND;
@@ -53,9 +51,11 @@ public class BookShell {
     public String insert(@ShellOption(value = {"--name","-n"}) String name,
                          @ShellOption(value = {"--author-id","-a"}) Integer authorId,
                          @ShellOption(value = {"--genre-id","-g"}) Integer genreId) {
-        BookDto bookDto = BookDto.createWithNullId(name, authorId,genreId);
+        Author author = Author.createWithId(authorId);
+        Genre genre = Genre.createWithId(genreId);
+        Book book = Book.createWithoutId(name, author,genre);
         try {
-            bookDao.insert(bookDto);
+            bookDao.insert(book);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
         catch (ForeignKeyViolatedException e) {
@@ -68,9 +68,11 @@ public class BookShell {
                          @ShellOption(value = {"--name","-n"}) String name,
                          @ShellOption(value = {"--author-id","-a"}) int idAuthor,
                          @ShellOption(value = {"--genre-id","-g"}) int idGenre) {
-        BookDto updatedBookDto = new BookDto(idBook, name, idAuthor, idGenre);
+        Author author = Author.createWithId(idAuthor);
+        Genre genre = Genre.createWithId(idGenre);
+        Book updatedBook = new Book(idBook, name, author, genre);
         try {
-            bookDao.update(updatedBookDto);
+            bookDao.update(updatedBook);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
         catch (ForeignKeyViolatedException e) {

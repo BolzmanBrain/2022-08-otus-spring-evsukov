@@ -9,7 +9,6 @@ import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 import ru.otus.spring.exceptions.UniqueKeyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
-import ru.otus.spring.presentation.GenreToStringConvertor;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,8 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GenreShell {
     private final GenreDao genreDao;
-    private final GenreToStringConvertor genreToStringConvertor;
-
     @ShellMethod(value = "Select genres", key = {"select genre", "sg"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Integer id) {
         if(Objects.isNull(id)) {
@@ -35,14 +32,14 @@ public class GenreShell {
     private String outputAllGenres() {
         List<Genre> genres = genreDao.getAll();
         return genres.stream()
-                .map(genreToStringConvertor::convertToString)
+                .map(Genre::toString)
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private String outputGenreById(int id) {
         try {
             Genre genre = genreDao.getById(id).orElseThrow();
-            return genreToStringConvertor.convertToString(genre);
+            return genre.toString();
         }
         catch (NoSuchElementException e) {
             return UserMessages.NO_DATA_FOUND;
@@ -51,7 +48,7 @@ public class GenreShell {
 
     @ShellMethod(value = "Insert a genre", key = {"insert genre","ig"})
     public String insert(String name) {
-        Genre genre = Genre.createWithNullId(name);
+        Genre genre = Genre.createWithName(name);
         try {
             genreDao.insert(genre);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;

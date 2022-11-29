@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.dao.dto.BookDto;
+import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 
 import java.util.Optional;
@@ -64,15 +65,15 @@ class BookDaoH2Test {
 
     @DisplayName("insert() works correctly")
     @Test
-    void shouldInsertCorrectly() throws Exception {
+    void shouldInsertCorrectly() {
         final String EXPECTED_NAME = "New Book";
         final int EXPECTED_COUNT = dao.count() + 1;
 
-        final int ID_AUTHOR = 1;
-        final int ID_GENRE = 1;
-        BookDto bookDto = BookDto.createWithNullId(EXPECTED_NAME, ID_AUTHOR, ID_GENRE);
+        Author author = Author.createWithId(1);
+        Genre genre = Genre.createWithId(1);
+        Book book = Book.createWithoutId(EXPECTED_NAME, author, genre);
 
-        int newId = dao.insert(bookDto);
+        int newId = dao.insert(book);
         int actualCount = dao.count();
         Book insertedBook = dao.getById(newId).orElseThrow();
 
@@ -85,12 +86,12 @@ class BookDaoH2Test {
     @Test
     void shouldInsertThrowForeignKeyViolatedException() {
         final String NAME = "New Book";
-        final int ID_AUTHOR = 3;
-        final int ID_GENRE = 3;
-        BookDto bookDto = BookDto.createWithNullId(NAME, ID_AUTHOR, ID_GENRE);
+        Author author = Author.createWithId(3);
+        Genre genre = Genre.createWithId(3);
+        Book book = Book.createWithoutId(NAME, author, genre);
 
         assertThrows(ForeignKeyViolatedException.class,
-                () -> dao.insert(bookDto));
+                () -> dao.insert(book));
     }
 
     @DisplayName("update() works correctly")
@@ -101,9 +102,12 @@ class BookDaoH2Test {
 
         final int ID_AUTHOR = 2;
         final int ID_GENRE = 2;
-        BookDto bookDtoToUpdate = new BookDto(ID_BOOK_TO_UPDATE, EXPECTED_NAME, ID_AUTHOR, ID_GENRE);
+        Author author = Author.createWithId(ID_AUTHOR);
+        Genre genre = Genre.createWithId(ID_GENRE);
 
-        dao.update(bookDtoToUpdate);
+        Book book = new Book(ID_BOOK_TO_UPDATE, EXPECTED_NAME, author, genre);
+
+        dao.update(book);
 
         Book actualBook = dao.getById(ID_BOOK_TO_UPDATE).orElseThrow();
 
@@ -118,12 +122,12 @@ class BookDaoH2Test {
     void shouldUpdateThrowForeignKeyViolatedException() {
         final int ID_BOOK_TO_UPDATE = 1;
         final String EXPECTED_NAME = "Hello World";
-        final int ID_AUTHOR = 3;
-        final int ID_GENRE = 3;
-        BookDto bookDtoToUpdate = new BookDto(ID_BOOK_TO_UPDATE, EXPECTED_NAME, ID_AUTHOR, ID_GENRE);
+        Author author = Author.createWithId(3);
+        Genre genre = Genre.createWithId(3);
+        Book bookToUpdate = new Book(ID_BOOK_TO_UPDATE, EXPECTED_NAME, author, genre);
 
         assertThrows(ForeignKeyViolatedException.class,
-                () -> dao.update(bookDtoToUpdate));
+                () -> dao.update(bookToUpdate));
     }
 
     @DisplayName("deleteById() works correctly")

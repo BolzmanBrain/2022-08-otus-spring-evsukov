@@ -9,7 +9,6 @@ import ru.otus.spring.domain.Author;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
 import ru.otus.spring.exceptions.UniqueKeyViolatedException;
-import ru.otus.spring.presentation.AuthorToStringConvertor;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthorShell {
     private final AuthorDao authorDao;
-    private final AuthorToStringConvertor authorToStringConvertor;
 
     @ShellMethod(value = "Select authors", key = {"select author", "sa"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Integer id) {
@@ -35,14 +33,14 @@ public class AuthorShell {
     private String outputAllAuthors() {
         List<Author> authors = authorDao.getAll();
         return authors.stream()
-                .map(authorToStringConvertor::convertToString)
+                .map(Author::toString)
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     private String outputAuthorById(int id) {
         try {
             Author author = authorDao.getById(id).orElseThrow();
-            return authorToStringConvertor.convertToString(author);
+            return author.toString();
         }
         catch (NoSuchElementException e) {
             return UserMessages.NO_DATA_FOUND;
@@ -51,7 +49,7 @@ public class AuthorShell {
 
     @ShellMethod(value = "Insert an author", key = {"insert author","ia"})
     public String insert(String name) {
-        Author author = Author.createWithNullId(name);
+        Author author = Author.createWithName(name);
         try {
             authorDao.insert(author);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;

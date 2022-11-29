@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
@@ -73,7 +72,7 @@ class GenreDaoH2Test {
         final String EXPECTED_NAME = "New Genre";
         final int EXPECTED_COUNT = genreDao.count() + 1;
 
-        Genre genreToInsert = Genre.createWithNullId(EXPECTED_NAME);
+        Genre genreToInsert = Genre.createWithName(EXPECTED_NAME);
 
         int newId = genreDao.insert(genreToInsert);
         int actualCount = genreDao.count();
@@ -90,7 +89,7 @@ class GenreDaoH2Test {
         final int ID_GENRE_TO_SELECT = 1;
         Genre existingGenre = genreDao.getById(ID_GENRE_TO_SELECT).orElseThrow();
 
-        Genre genreToInsert = Genre.createWithNullId(existingGenre.getName());
+        Genre genreToInsert = Genre.createWithName(existingGenre.getName());
         assertThrows(UniqueKeyViolatedException.class,
                 () -> genreDao.insert(genreToInsert));
     }

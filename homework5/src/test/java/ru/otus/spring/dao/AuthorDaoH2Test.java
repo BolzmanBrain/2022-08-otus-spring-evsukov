@@ -72,7 +72,7 @@ class AuthorDaoH2Test {
         final String EXPECTED_NAME = "New Author";
         final int EXPECTED_COUNT = authorDao.count() + 1;
 
-        Author authorToInsert = Author.createWithNullId(EXPECTED_NAME);
+        Author authorToInsert = Author.createWithName(EXPECTED_NAME);
 
         int newId = authorDao.insert(authorToInsert);
         int actualCount = authorDao.count();
@@ -89,7 +89,7 @@ class AuthorDaoH2Test {
         final int ID_AUTHOR_TO_SELECT = 1;
         Author existingAuthor = authorDao.getById(ID_AUTHOR_TO_SELECT).orElseThrow();
 
-        Author authorToInsert = Author.createWithNullId(existingAuthor.getName());
+        Author authorToInsert = Author.createWithName(existingAuthor.getName());
         assertThrows(UniqueKeyViolatedException.class,
                 () -> authorDao.insert(authorToInsert));
     }

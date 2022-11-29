@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
-import ru.otus.spring.dao.dto.BookDto;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 
 import java.sql.ResultSet;
@@ -25,29 +24,32 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookDaoH2 implements BookDao {
     private final NamedParameterJdbcOperations namedParamJdbc;
-    private final AuthorDao authorDao;
-    private final GenreDao genreDao;
+
+    private final static String SELECT_BOOKS_SQL = "select b.id_book,b.name as book_name,b.id_author,b.id_genre, " +
+            "a.name as author_name, g.name as genre_name " +
+            "from books_tbl b " +
+            "join authors_tbl a on a.id_author = b.id_author " +
+            "join genres_tbl g on g.id_genre = b.id_genre";
 
     @Override
     public Optional<Book> getById(int id) {
-        var params = Map.of("id_book",id);
-        BookDto dto;
         try {
-            dto = namedParamJdbc.queryForObject("select id_book,name,id_author,id_genre from books_tbl where id_book = :id_book",
-                    params, new BookDtoMapper());
+            var params = Map.of("id_book",id);
+            Book book = namedParamJdbc.queryForObject( SELECT_BOOKS_SQL +
+                            " where id_book = :id_book",
+                    params, new BookMapper());
+            return Optional.ofNullable(book);
         }
         catch (DataAccessException e) {
             return Optional.empty();
         }
-        return Optional.ofNullable(dto).map(this::createBookFromDto);
     }
 
     @Override
     public List<Book> getAll() {
-        return namedParamJdbc.query("select id_book,name,id_author,id_genre from books_tbl",
-                new BookDtoMapper())
+        return namedParamJdbc.query(SELECT_BOOKS_SQL,
+                new BookMapper())
                 .stream()
-                .map(this::createBookFromDto)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -60,11 +62,11 @@ public class BookDaoH2 implements BookDao {
     }
 
     @Override
-    public Integer insert(BookDto bookDto) throws ForeignKeyViolatedException {
+    public Integer insert(Book book) {
         MapSqlParameterSource paramSource = new MapSqlParameterSource();
-        paramSource.addValue("name",  bookDto.getName());
-        paramSource.addValue("id_author", bookDto.getIdAuthor());
-        paramSource.addValue("id_genre", bookDto.getIdGenre());
+        paramSource.addValue("name",  book.getName());
+        paramSource.addValue("id_author", book.getAuthor().getIdAuthor());
+        paramSource.addValue("id_genre", book.getGenre().getIdGenre());
 
         KeyHolder kh = new GeneratedKeyHolder();
 
@@ -79,12 +81,12 @@ public class BookDaoH2 implements BookDao {
     }
 
     @Override
-    public void update(BookDto bookDto) throws ForeignKeyViolatedException {
+    public void update(Book book) {
         var params = new HashMap<String,Object>();
-        params.put("id_book", bookDto.getIdBook());
-        params.put("name", bookDto.getName());
-        params.put("id_author", bookDto.getIdAuthor());
-        params.put("id_genre", bookDto.getIdGenre());
+        params.put("id_book", book.getIdBook());
+        params.put("name", book.getName());
+        params.put("id_author", book.getAuthor().getIdAuthor());
+        params.put("id_genre", book.getGenre().getIdGenre());
 
         try {
             namedParamJdbc.update("update books_tbl set name = :name, id_author = :id_author,id_genre = :id_genre where id_book = :id_book",
@@ -102,33 +104,20 @@ public class BookDaoH2 implements BookDao {
                 params);
     }
 
-    @Override
-    public Book createBookFromDto(BookDto dto) {
-        Author author;
-        Genre genre;
-        try {
-            author = authorDao.getById(dto.getIdAuthor()).orElseThrow();
-            genre = genreDao.getById(dto.getIdGenre()).orElseThrow();
-        }
-        catch (Exception e) {
-            return null;
-        }
-        return new Book(dto.getIdBook(), dto.getName(), author, genre);
-    }
-
-    @Override
-    public BookDto extractDtoFromBook(Book book) {
-        return new BookDto(book.getIdBook(), book.getName(), book.getAuthor().getIdAuthor(), book.getGenre().getIdGenre());
-    }
-
-    static class BookDtoMapper implements RowMapper<BookDto> {
+    static class BookMapper implements RowMapper<Book> {
         @Override
-        public BookDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-            int idBook = rs.getInt("id_book");
-            String name = rs.getString("name");
+        public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
             int idAuthor = rs.getInt("id_author");
+            String authorName = rs.getString("author_name");
+            Author author= new Author(idAuthor, authorName);
+
             int idGenre = rs.getInt("id_genre");
-            return new BookDto(idBook, name, idAuthor, idGenre);
+            String genreName = rs.getString("genre_name");
+            Genre genre = new Genre(idGenre, genreName);
+
+            int idBook = rs.getInt("id_book");
+            String bookName = rs.getString("book_name");
+            return new Book(idBook, bookName, author, genre);
         }
     }
 }
