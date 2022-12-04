@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.repository.GenreRepository;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 import ru.otus.spring.exceptions.UniqueKeyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GenreShell {
     private final GenreRepository genreRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Select genres", key = {"select genre", "sg"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Long id) {
         if(Objects.isNull(id)) {
@@ -76,7 +76,7 @@ public class GenreShell {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Count authors", key = {"count genre","cg"})
     public String count() {
         final String TOTAL_GENRES_MESSAGE = "Total number of genres is: %d";

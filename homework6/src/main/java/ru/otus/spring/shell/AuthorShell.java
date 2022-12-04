@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.otus.spring.repository.AuthorRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Author;
-import ru.otus.spring.exceptions.ForeignKeyViolatedException;
-import ru.otus.spring.exceptions.UserMessages;
 import ru.otus.spring.exceptions.UniqueKeyViolatedException;
+import ru.otus.spring.exceptions.UserMessages;
+import ru.otus.spring.repository.AuthorRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 public class AuthorShell {
     private final AuthorRepository authorRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Select authors", key = {"select author", "sa"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Long id) {
         if(Objects.isNull(id)) {
@@ -76,7 +75,7 @@ public class AuthorShell {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Count authors", key = {"count author","ca"})
     public String count() {
         final String TOTAL_AUTHORS_MESSAGE = "Total number of authors is: %d";

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.repository.BookRepository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
@@ -11,7 +12,6 @@ import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class BookShell {
     private final BookRepository bookRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Select books", key = {"select book", "sb"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Long id) {
         if(Objects.isNull(id)) {
@@ -85,7 +85,7 @@ public class BookShell {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Count books", key = {"count book","cb"})
     public String count() {
         final String TOTAL_BOOKS_MESSAGE = "Total number of books is: %d";

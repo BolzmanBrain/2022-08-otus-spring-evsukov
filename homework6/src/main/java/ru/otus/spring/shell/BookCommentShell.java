@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 import ru.otus.spring.exceptions.ForeignKeyViolatedException;
@@ -12,7 +13,6 @@ import ru.otus.spring.exceptions.UserMessages;
 import ru.otus.spring.repository.BookCommentRepository;
 import ru.otus.spring.repository.BookRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class BookCommentShell {
     private final BookCommentRepository bookCommentRepository;
     private final BookRepository bookRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Select a book comment by id", key = {"select book comment","sbc"})
     public String selectBookComment(Long id) {
         try {
@@ -35,7 +35,7 @@ public class BookCommentShell {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Select book comments by book id",
     key = {"select book comment by book id","sbcb"})
     public String selectBookCommentsByBookId(Long bookId) {
@@ -81,7 +81,7 @@ public class BookCommentShell {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ShellMethod(value = "Count book comments", key = {"count book comments","cbc"})
     public String count() {
         final String TOTAL_AUTHORS_MESSAGE = "Total number of book comments is: %d";
