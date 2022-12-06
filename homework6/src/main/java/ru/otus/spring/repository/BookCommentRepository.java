@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookCommentRepository {
-    Optional<BookComment> getById(long id);
-    List<BookComment> getByBookId(long idBook);
+    Optional<BookComment> findById(long id);
     long count();
     BookComment save(BookComment bookComment);
-    void deleteById(long id);
-
+    void delete(BookComment bookComment);
 }

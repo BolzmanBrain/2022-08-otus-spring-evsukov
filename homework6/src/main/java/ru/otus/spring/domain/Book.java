@@ -1,7 +1,8 @@
 package ru.otus.spring.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,23 +16,24 @@ import java.util.List;
         attributeNodes = {@NamedAttributeNode("author")})
 @Entity
 @Table(name = "books_tbl")
-@Getter
-@Setter
-public class Book implements RepresentableAsString {
+@Data
+public class Book  {
     public final static String BOOK_AUTHOR_ENTITY_GRAPH = "book-author-entity-graph";
     @Id
     @Column(name = "id_book")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private final String name;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_author")
     private final Author author;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_genre")
     private final Genre genre;
 
@@ -63,7 +65,7 @@ public class Book implements RepresentableAsString {
     }
 
     @Override
-    public String convertToString() {
+    public String toString() {
         return String.format("Book(id = %d, name = %s, author = %s, genre = %s)",
                 id, name, author.toString(), genre.toString());
     }

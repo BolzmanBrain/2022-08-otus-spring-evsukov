@@ -1,6 +1,7 @@
 package ru.otus.spring.domain;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
@@ -9,13 +10,13 @@ import javax.persistence.*;
 @Table(name = "authors_tbl")
 @Data
 @RequiredArgsConstructor
-public class Author implements RepresentableAsString{
+public class Author {
     @Id
     @Column(name = "id_author")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
 
-    @Column(name = "name", unique = true, nullable = false)
+    @Column(name = "name", unique = true)
     private final String name;
 
     public Author() {
@@ -30,8 +31,4 @@ public class Author implements RepresentableAsString{
         return new Author(idAuthor, null);
     }
 
-    @Override
-    public String convertToString() {
-        return this.toString();
-    }
 }

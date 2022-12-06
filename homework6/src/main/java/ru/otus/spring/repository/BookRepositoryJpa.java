@@ -1,28 +1,29 @@
 package ru.otus.spring.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-import ru.otus.spring.domain.Author;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.BookComment;
 
 import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class BookRepositoryJpa implements BookRepository {
     @PersistenceContext
     private final EntityManager em;
 
+    // transactional is needed for correct retrieval of LAZY-field "comments"
+    @Transactional(readOnly = true)
     @Override
-    public Optional<Book> getById(long id) {
+    public Optional<Book> findById(long id) {
         return Optional.ofNullable(em.find(Book.class, id));
     }
 
     @Override
-    public List<Book> getAll() {
+    public List<Book> findAll() {
         // Using JOIN FETCH to solve N + 1 problem for genres
         TypedQuery<Book> query = em.createQuery("select b from Book b " +
                 "join fetch b.genre " +
@@ -51,12 +52,7 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     @Override
-    public void deleteById(long id) {
-        Optional<Book> optionalBook = getById(id);
-
-        if (optionalBook.isPresent()) {
-            Book book = optionalBook.get();
-            em.remove(book);
-        }
+    public void delete(Book book) {
+        em.remove(book);
     }
 }

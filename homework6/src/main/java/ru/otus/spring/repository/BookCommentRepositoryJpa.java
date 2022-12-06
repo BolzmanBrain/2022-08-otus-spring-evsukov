@@ -1,7 +1,8 @@
 package ru.otus.spring.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 
 import javax.persistence.EntityManager;
@@ -10,25 +11,17 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class BookCommentRepositoryJpa implements BookCommentRepository {
     @PersistenceContext
     private final EntityManager em;
 
     @Override
-    public Optional<BookComment> getById(long id) {
+    public Optional<BookComment> findById(long id) {
         return Optional.ofNullable(em.find(BookComment.class, id));
     }
 
-    @Override
-    public List<BookComment> getByBookId(long idBook) {
-        TypedQuery<BookComment> query = em.createQuery("select bc from BookComment bc " +
-                "where bc.book.id = :id " +
-                "order by bc.id", BookComment.class);
-        query.setParameter("id", idBook);
-        return query.getResultList();
-    }
 
     @Override
     public long count() {
@@ -46,12 +39,7 @@ public class BookCommentRepositoryJpa implements BookCommentRepository {
     }
 
     @Override
-    public void deleteById(long id) {
-        Optional<BookComment> optionalBookComment = getById(id);
-
-        if (optionalBookComment.isPresent()) {
-            BookComment bookComment = optionalBookComment.get();
-            em.remove(bookComment);
-        }
+    public void delete(BookComment bookComment) {
+        em.remove(bookComment);
     }
 }

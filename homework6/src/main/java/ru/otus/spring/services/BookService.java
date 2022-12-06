@@ -1,14 +1,15 @@
-package ru.otus.spring.repository;
+package ru.otus.spring.services;
 
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.dtos.BookDto;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface BookRepository {
+public interface BookService {
     Optional<Book> findById(long id);
     List<Book> findAll();
     long count();
-    Book save(Book book);
-    void delete(Book book);
+    Book save(BookDto bookDto);
+    void deleteById(long id);
 }

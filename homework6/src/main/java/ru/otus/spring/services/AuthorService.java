@@ -1,14 +1,14 @@
-package ru.otus.spring.repository;
+package ru.otus.spring.services;
 
 import ru.otus.spring.domain.Author;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface AuthorRepository {
+public interface AuthorService {
     Optional<Author> findById(long id);
     List<Author> findAll();
     long count();
     Author save(Author author);
-    void delete(Author author);
+    void deleteById(long id);
 }

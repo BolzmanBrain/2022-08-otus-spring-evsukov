@@ -1,7 +1,7 @@
 package ru.otus.spring.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import ru.otus.spring.domain.Author;
 
 import javax.persistence.EntityManager;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class AuthorRepositoryJpa implements AuthorRepository {
 
@@ -19,12 +19,12 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     private final EntityManager em;
 
     @Override
-    public Optional<Author> getById(long id) {
+    public Optional<Author> findById(long id) {
         return Optional.ofNullable(em.find(Author.class, id));
     }
 
     @Override
-    public List<Author> getAll() {
+    public List<Author> findAll() {
         TypedQuery<Author> query = em.createQuery("select a from Author a order by a.id", Author.class);
         return query.getResultList();
     }
@@ -45,12 +45,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     @Override
-    public void deleteById(long id) {
-        Optional<Author> optionalAuthor = getById(id);
-
-        if (optionalAuthor.isPresent()) {
-            Author author = optionalAuthor.get();
-            em.remove(author);
-        }
+    public void delete(Author author) {
+        em.remove(author);
     }
 }

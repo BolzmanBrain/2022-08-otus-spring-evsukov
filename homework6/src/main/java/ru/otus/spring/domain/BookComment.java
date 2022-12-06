@@ -9,13 +9,13 @@ import javax.persistence.*;
 @Table(name = "book_comments_tbl")
 @Data
 @RequiredArgsConstructor
-public class BookComment implements RepresentableAsString {
+public class BookComment {
     @Id
     @Column(name = "id_book_comment")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
 
-    @Column(name = "text", nullable = false, length = 8000)
+    @Column(name = "text")
     private final String text;
 
     @ManyToOne
@@ -32,9 +32,4 @@ public class BookComment implements RepresentableAsString {
         return new BookComment(null, text, book);
     }
 
-    @Override
-    public String convertToString() {
-        return String.format("BookComment(id = %d, text = %s, idBook = %d)",
-                id, text, book == null ? null : book.getId());
-    }
 }

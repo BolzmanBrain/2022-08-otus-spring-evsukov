@@ -30,7 +30,7 @@ class BookCommentRepositoryTest {
         long ID_TO_SELECT = 1;
 
         val expected = tem.find(BookComment.class, ID_TO_SELECT);
-        val actual = repositoryJpa.getById(ID_TO_SELECT).orElseThrow();
+        val actual = repositoryJpa.findById(ID_TO_SELECT).orElseThrow();
         assertEquals(expected, actual);
     }
 
@@ -38,32 +38,8 @@ class BookCommentRepositoryTest {
     @Test
     void getById_AbsentRecord_EmptyOptional() {
         long ID_TO_SELECT = -1;
-        val actual = repositoryJpa.getById(ID_TO_SELECT);
+        val actual = repositoryJpa.findById(ID_TO_SELECT);
         assertThat(actual).isEmpty();
-    }
-
-    @DisplayName("getByBookId() returns records for existing book")
-    @Test
-    void getByBookId_ReturnsRecordsForExistingBook() {
-        long ID_BOOK = 1;
-        long ID_BOOK_COMMENT = 1;
-        int EXPECTED_SIZE = 2;
-
-        val expectedBookComment = repositoryJpa.getById(ID_BOOK_COMMENT).orElseThrow();
-        val actualList = repositoryJpa.getByBookId(ID_BOOK);
-
-        assertAll(
-                () -> assertThat(actualList).isNotNull().hasSize(EXPECTED_SIZE),
-                () -> assertEquals(expectedBookComment, actualList.get(0))
-        );
-    }
-
-    @DisplayName("getByBookId() returns empty list for absent book")
-    @Test
-    void getByBookId_ReturnsEmptyListForAbsentBook() {
-        long ID_BOOK = -1;
-        val actualList = repositoryJpa.getByBookId(ID_BOOK);
-        assertThat(actualList).isEmpty();
     }
 
     @DisplayName("count returns 4")
@@ -86,7 +62,7 @@ class BookCommentRepositoryTest {
         val newBookComment = BookComment.of(BOOK_COMMENT_TEXT, book);
 
         repositoryJpa.save(newBookComment);
-        val actualBookComment = repositoryJpa.getByBookId(ID_BOOK).get(2);
+        val actualBookComment = repositoryJpa.findById(5).orElseThrow();
 
         assertAll(
                 () -> assertEquals(newBookComment.getBook().getId(), actualBookComment.getBook().getId()),
@@ -99,12 +75,12 @@ class BookCommentRepositoryTest {
     void save_updatesExistingRecord() {
         long ID_TO_UPDATE = 1;
 
-        val oldObj = repositoryJpa.getById(ID_TO_UPDATE).orElseThrow();
+        val oldObj = repositoryJpa.findById(ID_TO_UPDATE).orElseThrow();
         var updatedObj = new BookComment(ID_TO_UPDATE, "New Name", oldObj.getBook());
 
         repositoryJpa.save(updatedObj);
 
-        val newObj = repositoryJpa.getById(ID_TO_UPDATE).orElseThrow();
+        val newObj = repositoryJpa.findById(ID_TO_UPDATE).orElseThrow();
 
         assertAll(
                 () -> assertEquals(oldObj.getId(), newObj.getId()),
@@ -115,12 +91,12 @@ class BookCommentRepositoryTest {
     @Test
     void deleteById_deletesExistingRecord() {
         long ID_TO_DELETE = 1;
-        val recordBefore = repositoryJpa.getById(ID_TO_DELETE).orElseThrow();
+        val recordBefore = repositoryJpa.findById(ID_TO_DELETE).orElseThrow();
 
         // delete the object
-        repositoryJpa.deleteById(ID_TO_DELETE);
+        repositoryJpa.delete(recordBefore);
 
-        val optionalRecordAfter = repositoryJpa.getById(ID_TO_DELETE);
+        val optionalRecordAfter = repositoryJpa.findById(ID_TO_DELETE);
 
         assertAll(
                 () -> assertNotNull(recordBefore),

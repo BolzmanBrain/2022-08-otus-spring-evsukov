@@ -7,58 +7,56 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
-import ru.otus.spring.exceptions.ForeignKeyViolatedException;
-import ru.otus.spring.exceptions.UniqueKeyViolatedException;
+import ru.otus.spring.dtos.BookCommentDto;
+import ru.otus.spring.exceptions.ConstraintViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
-import ru.otus.spring.repository.BookCommentRepository;
-import ru.otus.spring.repository.BookRepository;
+import ru.otus.spring.services.BookCommentService;
+import ru.otus.spring.services.BookService;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
 public class BookCommentShell {
-    private final BookCommentRepository bookCommentRepository;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
+    private final BookCommentService bookCommentService;
 
-    @Transactional(readOnly = true)
     @ShellMethod(value = "Select a book comment by id", key = {"select book comment","sbc"})
     public String selectBookComment(Long id) {
-        try {
-            BookComment bookComment = bookCommentRepository.getById(id).orElseThrow();
-            return bookComment.convertToString();
-        }
-        catch (NoSuchElementException e) {
+        Optional<BookComment> optionalBookComment = bookCommentService.findById(id);
+
+        if(optionalBookComment.isPresent()) {
+            return optionalBookComment.get().toString();
+        } else {
             return UserMessages.NO_DATA_FOUND;
         }
     }
 
-    @Transactional(readOnly = true)
     @ShellMethod(value = "Select book comments by book id",
     key = {"select book comment by book id","sbcb"})
-    public String selectBookCommentsByBookId(Long bookId) {
-        List<BookComment> bookComments = bookCommentRepository.getByBookId(bookId);
-        return bookComments.stream()
-                .map(BookComment::convertToString)
-                .collect(Collectors.joining(System.lineSeparator()));
+    public String selectBookCommentsByBookId(Long idBook) {
+        Optional<Book> optionalBook = bookService.findById(idBook);
+
+        if(optionalBook.isPresent()) {
+            List<BookComment> bookComments = optionalBook.get().getComments();
+            return bookComments.stream()
+                    .map(BookComment::toString)
+                    .collect(Collectors.joining(System.lineSeparator()));
+        }
+        return UserMessages.NO_DATA_FOUND;
     }
 
-    @Transactional
     @ShellMethod(value = "Insert a book", key = {"insert book comment","ibc"})
     public String insert(@ShellOption(value = {"--book-id","-b"}) Long idBook,
                          @ShellOption(value = {"--text","-t"}) String text) {
         try {
-            Book book = bookRepository.getById(idBook).orElseThrow();
-            BookComment newBookComment = BookComment.of(text, book);
-            bookCommentRepository.save(newBookComment);
+            BookCommentDto bookCommentDto = BookCommentDto.of(text, idBook);
+            bookCommentService.save(bookCommentDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (NoSuchElementException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.NO_DATA_FOUND;
-        }
-        catch (ForeignKeyViolatedException e) {
+        catch (ConstraintViolatedException e) {
             return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
         }
     }
@@ -68,15 +66,11 @@ public class BookCommentShell {
     public String update(@ShellOption(value = {"--id","-i"}) long id,
                          @ShellOption(value = {"--text","-t"}) String text) {
         try {
-            BookComment oldBookComment = bookCommentRepository.getById(id).orElseThrow();
-            BookComment newBookComment = new BookComment(id, text, oldBookComment.getBook());
-            bookCommentRepository.save(newBookComment);
+            BookCommentDto bookCommentDto = new BookCommentDto(id, text, null);
+            bookCommentService.save(bookCommentDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (NoSuchElementException e) {
-            return UserMessages.NO_DATA_FOUND;
-        }
-        catch (UniqueKeyViolatedException e) {
+        catch (ConstraintViolatedException e) {
             return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.UNIQUE_KEY_VIOLATED;
         }
     }
@@ -86,7 +80,7 @@ public class BookCommentShell {
     public String count() {
         final String TOTAL_AUTHORS_MESSAGE = "Total number of book comments is: %d";
 
-        long totalNumOfBookComments = bookCommentRepository.count();
+        long totalNumOfBookComments = bookCommentService.count();
         return String.format(TOTAL_AUTHORS_MESSAGE, totalNumOfBookComments);
     }
 
@@ -94,10 +88,10 @@ public class BookCommentShell {
     @ShellMethod(value = "Delete a book comment", key = {"delete book comment", "dbc"})
     public String delete(long id) {
         try {
-            bookCommentRepository.deleteById(id);
+            bookCommentService.deleteById(id);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ForeignKeyViolatedException e) {
+        catch (ConstraintViolatedException e) {
             return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
         }
     }

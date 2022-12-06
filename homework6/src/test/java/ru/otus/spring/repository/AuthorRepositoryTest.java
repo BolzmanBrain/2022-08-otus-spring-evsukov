@@ -27,7 +27,7 @@ class AuthorRepositoryTest {
         long ID_TO_SELECT = 1;
 
         val expected = tem.find(Author.class, ID_TO_SELECT);
-        val actual = repositoryJpa.getById(ID_TO_SELECT).orElseThrow();
+        val actual = repositoryJpa.findById(ID_TO_SELECT).orElseThrow();
 
         assertEquals(expected, actual);
     }
@@ -36,7 +36,7 @@ class AuthorRepositoryTest {
     @Test
     void getById_AbsentRecord_EmptyOptional() {
         long ID_TO_SELECT = -1;
-        val actual = repositoryJpa.getById(ID_TO_SELECT);
+        val actual = repositoryJpa.findById(ID_TO_SELECT);
         assertThat(actual).isEmpty();
     }
 
@@ -45,7 +45,7 @@ class AuthorRepositoryTest {
     void getAll_ListOf2ElemsWithNonNullFields() {
         val EXPECTED_SIZE = 2;
 
-        val actual = repositoryJpa.getAll();
+        val actual = repositoryJpa.findAll();
 
         assertThat(actual).hasSize(EXPECTED_SIZE);
 
@@ -89,21 +89,21 @@ class AuthorRepositoryTest {
         final Author updatedObj = new Author(ID_TO_UPDATE, "New Name");
 
         repositoryJpa.save(updatedObj);
-        final Author newObj = repositoryJpa.getById(ID_TO_UPDATE).orElseThrow();
+        final Author newObj = repositoryJpa.findById(ID_TO_UPDATE).orElseThrow();
 
         assertEquals(newObj, updatedObj);
     }
 
-    @DisplayName("deleteById deletes an existing record")
+    @DisplayName("delete deletes an existing record")
     @Test
     void deleteById_deletesExistingRecord() {
         long ID_TO_DELETE = 1;
-        val recordBefore = repositoryJpa.getById(ID_TO_DELETE).orElseThrow();
+        val recordBefore = repositoryJpa.findById(ID_TO_DELETE).orElseThrow();
 
         // delete the object
-        repositoryJpa.deleteById(ID_TO_DELETE);
+        repositoryJpa.delete(recordBefore);
 
-        val optionalRecordAfter = repositoryJpa.getById(ID_TO_DELETE);
+        val optionalRecordAfter = repositoryJpa.findById(ID_TO_DELETE);
 
         assertAll(
                 () -> assertNotNull(recordBefore),

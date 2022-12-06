@@ -4,25 +4,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.transaction.annotation.Transactional;
-import ru.otus.spring.repository.BookRepository;
-import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.Genre;
-import ru.otus.spring.exceptions.ForeignKeyViolatedException;
+import ru.otus.spring.dtos.BookDto;
+import ru.otus.spring.exceptions.ConstraintViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
+import ru.otus.spring.services.BookService;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
 public class BookShell {
-    private final BookRepository bookRepository;
+    private final BookService bookService;
 
-    @Transactional(readOnly = true)
     @ShellMethod(value = "Select books", key = {"select book", "sb"})
     public String select(@ShellOption(defaultValue = ShellOption.NULL) Long id) {
         if(Objects.isNull(id)) {
@@ -33,71 +30,63 @@ public class BookShell {
         }
     }
 
-    private String outputAllBooks() {
-        List<Book> books = bookRepository.getAll();
-        return books.stream()
-                .map(Book::convertToString)
-                .collect(Collectors.joining(System.lineSeparator()));
-    }
-
-    private String outputBookById(long id) {
-        try {
-            Book book = bookRepository.getById(id).orElseThrow();
-            return book.convertToString();
-        }
-        catch (NoSuchElementException e) {
-            return UserMessages.NO_DATA_FOUND;
-        }
-    }
-
-    @Transactional
     @ShellMethod(value = "Insert a book", key = {"insert book","ib"})
     public String insert(@ShellOption(value = {"--name","-n"}) String name,
-                         @ShellOption(value = {"--author-id","-a"}) Long authorId,
-                         @ShellOption(value = {"--genre-id","-g"}) Long genreId) {
-        Author author = Author.createWithId(authorId);
-        Genre genre = Genre.createWithId(genreId);
-        Book book = Book.of(name, author,genre);
+                         @ShellOption(value = {"--author-id","-a"}) Long idAuthor,
+                         @ShellOption(value = {"--genre-id","-g"}) Long idGenre) {
         try {
-            bookRepository.save(book);
+            BookDto bookDto = BookDto.of(name, idAuthor, idGenre);
+            bookService.save(bookDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ForeignKeyViolatedException e) {
+        catch (ConstraintViolatedException e) {
             return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
         }
     }
 
-    @Transactional
     @ShellMethod(value = "Update a book", key = {"update book","ub"})
     public String update(@ShellOption(value = {"--id","-i"}) long idBook,
                          @ShellOption(value = {"--name","-n"}) String name,
                          @ShellOption(value = {"--author-id","-a"}) long idAuthor,
                          @ShellOption(value = {"--genre-id","-g"}) long idGenre) {
-        Author author = Author.createWithId(idAuthor);
-        Genre genre = Genre.createWithId(idGenre);
-        Book updatedBook = new Book(idBook, name, author, genre);
         try {
-            bookRepository.save(updatedBook);
+            BookDto bookDto = new BookDto(idBook, name, idAuthor, idGenre);
+            bookService.save(bookDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ForeignKeyViolatedException e) {
+        catch (ConstraintViolatedException e) {
             return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
         }
     }
 
-    @Transactional(readOnly = true)
     @ShellMethod(value = "Count books", key = {"count book","cb"})
     public String count() {
         final String TOTAL_BOOKS_MESSAGE = "Total number of books is: %d";
 
-        long totalNumOfBooks = bookRepository.count();
+        long totalNumOfBooks = bookService.count();
         return String.format(TOTAL_BOOKS_MESSAGE, totalNumOfBooks);
     }
 
-    @Transactional
     @ShellMethod(value = "Delete a book", key = {"delete book", "db"})
     public String delete(long id) {
-        bookRepository.deleteById(id);
+        bookService.deleteById(id);
         return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
+    }
+
+    private String outputAllBooks() {
+        List<Book> books = bookService.findAll();
+        return books.stream()
+                .map(Book::toString)
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    private String outputBookById(long id) {
+        Optional<Book> optionalBook = bookService.findById(id);
+
+        if(optionalBook.isPresent()) {
+            return optionalBook.get().toString();
+        } else {
+            return UserMessages.NO_DATA_FOUND;
+        }
     }
 }

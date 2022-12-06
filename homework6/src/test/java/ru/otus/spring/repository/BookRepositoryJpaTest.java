@@ -30,8 +30,7 @@ class BookRepositoryJpaTest {
         long ID_TO_SELECT = 1;
 
         val expected = tem.find(Book.class, ID_TO_SELECT);
-        val actual = repositoryJpa.getById(ID_TO_SELECT).orElseThrow();
-        System.out.println(expected.convertToString());
+        val actual = repositoryJpa.findById(ID_TO_SELECT).orElseThrow();
         assertEquals(expected, actual);
     }
 
@@ -39,7 +38,7 @@ class BookRepositoryJpaTest {
     @Test
     void getById_AbsentRecord_EmptyOptional() {
         long ID_TO_SELECT = -1;
-        val actual = repositoryJpa.getById(ID_TO_SELECT);
+        val actual = repositoryJpa.findById(ID_TO_SELECT);
         assertThat(actual).isEmpty();
     }
 
@@ -48,7 +47,7 @@ class BookRepositoryJpaTest {
     void getAll_ListOf2ElemsWithNonNullFields() {
         val EXPECTED_SIZE = 2;
 
-        val actual = repositoryJpa.getAll();
+        val actual = repositoryJpa.findAll();
 
         assertThat(actual).hasSize(EXPECTED_SIZE);
 
@@ -84,7 +83,7 @@ class BookRepositoryJpaTest {
         repositoryJpa.save(objToInsert);
         val newCount = repositoryJpa.count();
 
-        val newObj = repositoryJpa.getById(3).orElseThrow();
+        val newObj = repositoryJpa.findById(3).orElseThrow();
 
         assertAll(
                 () -> assertEquals(expectedCount, newCount),
@@ -99,13 +98,13 @@ class BookRepositoryJpaTest {
     void save_updatesExistingRecord() {
         long ID_TO_UPDATE = 1;
 
-        val oldObj = repositoryJpa.getById(ID_TO_UPDATE).orElseThrow();
+        val oldObj = repositoryJpa.findById(ID_TO_UPDATE).orElseThrow();
         var updatedObj = new Book(ID_TO_UPDATE, "New Name", oldObj.getAuthor(),
                 oldObj.getGenre());
 
         repositoryJpa.save(updatedObj);
 
-        val newObj = repositoryJpa.getById(ID_TO_UPDATE).orElseThrow();
+        val newObj = repositoryJpa.findById(ID_TO_UPDATE).orElseThrow();
 
         assertAll(
                 () -> assertEquals(oldObj.getId(), newObj.getId()),
@@ -119,12 +118,12 @@ class BookRepositoryJpaTest {
     @Test
     void deleteById_deletesExistingRecord() {
         long ID_TO_DELETE = 1;
-        val recordBefore = repositoryJpa.getById(ID_TO_DELETE).orElseThrow();
+        val recordBefore = repositoryJpa.findById(ID_TO_DELETE).orElseThrow();
 
         // delete the object
-        repositoryJpa.deleteById(ID_TO_DELETE);
+        repositoryJpa.delete(recordBefore);
 
-        val optionalRecordAfter = repositoryJpa.getById(ID_TO_DELETE);
+        val optionalRecordAfter = repositoryJpa.findById(ID_TO_DELETE);
 
         assertAll(
                 () -> assertNotNull(recordBefore),

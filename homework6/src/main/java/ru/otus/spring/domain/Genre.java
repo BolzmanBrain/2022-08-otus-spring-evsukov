@@ -9,13 +9,13 @@ import javax.persistence.*;
 @Table(name = "genres_tbl")
 @Data
 @RequiredArgsConstructor
-public class Genre implements RepresentableAsString {
+public class Genre {
     @Id
     @Column(name = "id_genre")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", unique = true)
     private final String name;
 
     public Genre() {
@@ -30,8 +30,4 @@ public class Genre implements RepresentableAsString {
         return new Genre(idGenre, null);
     }
 
-    @Override
-    public String convertToString() {
-        return this.toString();
-    }
 }
