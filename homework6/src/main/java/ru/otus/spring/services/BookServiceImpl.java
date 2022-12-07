@@ -51,7 +51,14 @@ public class BookServiceImpl implements BookService {
         try {
             Author author = authorRepository.findById(bookDto.getIdAuthor()).orElseThrow();
             Genre genre = genreRepository.findById(bookDto.getIdGenre()).orElseThrow();
-            Book book = Book.of(bookDto.getName(), author, genre);
+            Book book;
+
+            if(bookDto.getId() == null) {
+                book = Book.createForInsert(bookDto.getName(), author, genre);
+            } else {
+                // create for update
+                book = new Book(bookDto.getId(), bookDto.getName(), author, genre);
+            }
             return bookRepository.save(book);
         }
         catch (NoSuchElementException e) {

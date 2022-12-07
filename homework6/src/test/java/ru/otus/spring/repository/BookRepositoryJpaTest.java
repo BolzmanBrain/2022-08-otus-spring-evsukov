@@ -77,7 +77,7 @@ class BookRepositoryJpaTest {
         val author = em.find(Author.class, idAuthor);
         val genre = em.find(Genre.class, idGenre);
 
-        val objToInsert = Book.of("New record", author, genre);
+        val objToInsert = Book.createForInsert("New record", author, genre);
         val expectedCount = repositoryJpa.count() + 1;
 
         repositoryJpa.save(objToInsert);

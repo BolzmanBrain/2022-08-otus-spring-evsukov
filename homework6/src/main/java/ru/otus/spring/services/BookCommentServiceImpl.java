@@ -32,7 +32,6 @@ public class BookCommentServiceImpl implements BookCommentService {
     @Override
     public BookComment save(BookCommentDto bookCommentDto) {
         if (bookCommentDto.getId() == null) {
-            System.out.println("НЕ ТУДА!!!!!!");
             return insert(bookCommentDto);
         } else if (bookCommentDto.getIdBook() == null) {
             return update(bookCommentDto);
