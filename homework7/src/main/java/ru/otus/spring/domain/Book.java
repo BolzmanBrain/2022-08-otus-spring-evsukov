@@ -1,6 +1,8 @@
 package ru.otus.spring.domain;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "books_tbl")
 @Data
+@RequiredArgsConstructor
 public class Book  {
     public final static String BOOK_ENTITY_GRAPH = "book-entity-graph";
     @Id
@@ -26,11 +29,11 @@ public class Book  {
     @Column(name = "name")
     private final String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_author")
     private final Author author;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_genre")
     private final Genre genre;
 
@@ -39,8 +42,7 @@ public class Book  {
     // https://betterjavacode.com/java/a-collection-with-cascadeall-delete-orphan-was-no-longer-referenced-by-the-owning-entity-instance
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             mappedBy = "book",
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            orphanRemoval = true)
     private final List<BookComment> comments = new ArrayList<>();
 
     public Book() {
@@ -48,13 +50,6 @@ public class Book  {
         this.name = null;
         this.author = new Author();
         this.genre = new Genre();
-    }
-
-    public Book(Long id, String name, Author author, Genre genre) {
-        this.id = id;
-        this.name = name;
-        this.author = author;
-        this.genre = genre;
     }
 
     public static Book createForInsert(String name, Author author, Genre genre) {

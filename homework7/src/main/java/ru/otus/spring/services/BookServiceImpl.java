@@ -35,7 +35,6 @@ public class BookServiceImpl implements BookService {
         return optionalBook;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Book> findAll() {
         return bookRepository.findAll();
