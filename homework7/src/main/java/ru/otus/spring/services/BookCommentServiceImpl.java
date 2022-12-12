@@ -2,7 +2,6 @@ package ru.otus.spring.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 import ru.otus.spring.dtos.BookCommentDto;
@@ -28,7 +27,6 @@ public class BookCommentServiceImpl implements BookCommentService {
         return bookCommentRepository.count();
     }
 
-    @Transactional
     @Override
     public BookComment save(BookCommentDto bookCommentDto) {
         if (bookCommentDto.getId() == null) {
@@ -39,7 +37,6 @@ public class BookCommentServiceImpl implements BookCommentService {
         throw new ConstraintViolatedException("BookComment is not filled correctly");
     }
 
-    @Transactional
     @Override
     public void deleteById(long id) {
         Optional<BookComment> optionalBookComment = findById(id);

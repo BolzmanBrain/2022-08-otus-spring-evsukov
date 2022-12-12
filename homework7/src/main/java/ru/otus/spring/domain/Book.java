@@ -40,8 +40,7 @@ public class Book  {
     // If I don't create the collection right here, Hibernate throws Exception while trying
     // to update this entity. Even if the 'name' field is being updated
     // https://betterjavacode.com/java/a-collection-with-cascadeall-delete-orphan-was-no-longer-referenced-by-the-owning-entity-instance
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            mappedBy = "book",
+    @OneToMany(mappedBy = "book",
             orphanRemoval = true)
     private final List<BookComment> comments = new ArrayList<>();
 

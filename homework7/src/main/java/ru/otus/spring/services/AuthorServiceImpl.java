@@ -2,7 +2,6 @@ package ru.otus.spring.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.exceptions.ConstraintViolatedException;
 import ru.otus.spring.repository.AuthorRepository;
@@ -30,7 +29,6 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.count();
     }
 
-    @Transactional
     @Override
     public Author save(Author author) {
         try {
@@ -41,7 +39,6 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
-    @Transactional
     @Override
     public void deleteById(long id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);

@@ -13,7 +13,9 @@ import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
 import ru.otus.spring.repository.GenreRepository;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,6 @@ public class BookServiceImpl implements BookService {
         return bookRepository.count();
     }
 
-    @Transactional
     @Override
     public Book save(BookDto bookDto) {
         try {
@@ -66,6 +67,9 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    // It is not necessary to use @Transactional in most DML methods if you use
+    // Spring Data, because many of its methods are already wrapped in @Transactional.
+    // However, I have to make this method @Transactional, due to orphanRemove = true.
     @Transactional
     @Override
     public void deleteById(long id) {

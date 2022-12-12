@@ -2,7 +2,6 @@ package ru.otus.spring.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exceptions.ConstraintViolatedException;
 import ru.otus.spring.repository.GenreRepository;
@@ -30,7 +29,6 @@ public class GenreServiceImpl implements GenreService {
         return genreRepository.count();
     }
 
-    @Transactional
     @Override
     public Genre save(Genre genre) {
         try {
@@ -41,7 +39,6 @@ public class GenreServiceImpl implements GenreService {
         }
     }
 
-    @Transactional
     @Override
     public void deleteById(long id) {
         Optional<Genre> optionalGenre = genreRepository.findById(id);
