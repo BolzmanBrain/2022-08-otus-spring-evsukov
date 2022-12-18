@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 import ru.otus.spring.dtos.BookCommentDto;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.repository.BookRepository;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class BookCommentServiceImpl implements BookCommentService {
             book.setComments(bookComments);
             bookRepository.save(book);
         } else {
-            throw new ConstraintViolatedException("Wrong idBook specified");
+            throw new ConsistencyViolatedException("Wrong idBook specified");
         }
     }
 
@@ -64,7 +64,7 @@ public class BookCommentServiceImpl implements BookCommentService {
             bookRepository.save(book);
             return newBookComment;
         } else {
-            throw new ConstraintViolatedException("Specified book doesn't exist");
+            throw new ConsistencyViolatedException("Specified book doesn't exist");
         }
     }
 
@@ -80,7 +80,7 @@ public class BookCommentServiceImpl implements BookCommentService {
             bookRepository.save(book);
             return bookComment;
         } catch (NoSuchElementException e) {
-            throw new ConstraintViolatedException("Trying to update a comment that doesn't exist", e);
+            throw new ConsistencyViolatedException("Trying to update a comment that doesn't exist", e);
         }
     }
 }

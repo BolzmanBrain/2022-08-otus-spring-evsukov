@@ -3,7 +3,7 @@ package ru.otus.spring.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.domain.Author;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.repository.AuthorRepository;
 
 import java.util.List;
@@ -32,24 +32,23 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author save(Author author) {
         try {
-            return authorRepository.save(author);
+            return authorRepository.saveEnsureConsistency(author);
         }
         catch (RuntimeException e) {
-            throw new ConstraintViolatedException("Unique constraint violated",e);
+            throw new ConsistencyViolatedException("Uniqueness violated",e);
         }
     }
 
     @Override
     public void deleteById(String id) {
-        Optional<Author> optionalAuthor = authorRepository.findById(id);
-
-        if (optionalAuthor.isPresent()) {
-            Author author = optionalAuthor.get();
-            try {
-                authorRepository.delete(author);
-            } catch (RuntimeException e) {
-                throw new ConstraintViolatedException("Foreign key violated",e);
-            }
+        try {
+            authorRepository.deleteEnsureConsistencyById(id);
+        } catch (IllegalArgumentException e) {
+            // id of a wrong format is specified. No action is required
+            return;
+        }
+        catch (RuntimeException e) {
+            throw new ConsistencyViolatedException("Reference integrity violated",e);
         }
     }
 }

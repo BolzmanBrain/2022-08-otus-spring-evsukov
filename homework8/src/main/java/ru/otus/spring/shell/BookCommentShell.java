@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 import ru.otus.spring.dtos.BookCommentDto;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
 import ru.otus.spring.services.BookCommentService;
 import ru.otus.spring.services.BookService;
@@ -56,12 +55,11 @@ public class BookCommentShell {
             bookCommentService.save(bookCommentDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ConstraintViolatedException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
+        catch (ConsistencyViolatedException e) {
+            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.REFERENCE_INTEGRITY_VIOLATED;
         }
     }
 
-    @Transactional
     @ShellMethod(value = "Update a book comment", key = {"update book comment","ubc"})
     public String update(@ShellOption(value = {"--id-book","-b"}) String idBook,
                          @ShellOption(value = {"--id-comment","-c"}) String idBookComment,
@@ -71,20 +69,19 @@ public class BookCommentShell {
             bookCommentService.save(bookCommentDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ConstraintViolatedException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.UNIQUE_KEY_VIOLATED;
+        catch (ConsistencyViolatedException e) {
+            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.UNIQUENESS_VIOLATED;
         }
     }
 
-    @Transactional
     @ShellMethod(value = "Delete a book comment", key = {"delete book comment", "dbc"})
     public String delete(String idBook, String idBookComment) {
         try {
             bookCommentService.deleteByIds(idBook, idBookComment);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ConstraintViolatedException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
+        catch (ConsistencyViolatedException e) {
+            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.REFERENCE_INTEGRITY_VIOLATED;
         }
     }
 }

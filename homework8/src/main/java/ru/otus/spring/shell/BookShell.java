@@ -6,7 +6,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.dtos.BookDto;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.exceptions.UserMessages;
 import ru.otus.spring.services.BookService;
 
@@ -39,8 +39,8 @@ public class BookShell {
             bookService.save(bookDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ConstraintViolatedException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
+        catch (ConsistencyViolatedException e) {
+            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.REFERENCE_INTEGRITY_VIOLATED;
         }
     }
 
@@ -54,8 +54,8 @@ public class BookShell {
             bookService.save(bookDto);
             return UserMessages.ACTION_EXECUTED_SUCCESSFULLY;
         }
-        catch (ConstraintViolatedException e) {
-            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.FOREIGN_KEY_VIOLATED;
+        catch (ConsistencyViolatedException e) {
+            return UserMessages.ACTION_COULD_NOT_BE_EXECUTED +". "+UserMessages.REFERENCE_INTEGRITY_VIOLATED;
         }
     }
 

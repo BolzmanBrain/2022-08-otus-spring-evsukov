@@ -11,10 +11,9 @@ import java.util.List;
 
 @Document("books")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Book  {
-    public final static String BOOK_ENTITY_GRAPH = "book-entity-graph";
     @Id
     private String id;
     private String name;

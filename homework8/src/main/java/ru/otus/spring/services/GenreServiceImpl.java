@@ -3,7 +3,7 @@ package ru.otus.spring.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.domain.Genre;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.repository.GenreRepository;
 
 import java.util.List;
@@ -32,24 +32,23 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public Genre save(Genre genre) {
         try {
-            return genreRepository.save(genre);
+            return genreRepository.saveEnsureConsistency(genre);
         }
         catch (RuntimeException e) {
-            throw new ConstraintViolatedException("Unique constraint violated",e);
+            throw new ConsistencyViolatedException("Uniqueness violated",e);
         }
     }
 
     @Override
     public void deleteById(String id) {
-        Optional<Genre> optionalGenre = genreRepository.findById(id);
-
-        if (optionalGenre.isPresent()) {
-            Genre genre = optionalGenre.get();
-            try {
-                genreRepository.delete(genre);
-            } catch (RuntimeException e) {
-                throw new ConstraintViolatedException("Foreign key violated",e);
-            }
+        try {
+            genreRepository.deleteEnsureConsistencyById(id);
+        } catch (IllegalArgumentException e) {
+            // id of a wrong format is specified. No action is required
+            return;
+        }
+        catch (RuntimeException e) {
+            throw new ConsistencyViolatedException("Reference integrity violated",e);
         }
     }
 }

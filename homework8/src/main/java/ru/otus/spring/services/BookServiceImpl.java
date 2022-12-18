@@ -7,7 +7,7 @@ import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookComment;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.dtos.BookDto;
-import ru.otus.spring.exceptions.ConstraintViolatedException;
+import ru.otus.spring.exceptions.ConsistencyViolatedException;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
 import ru.otus.spring.repository.GenreRepository;
@@ -54,7 +54,7 @@ public class BookServiceImpl implements BookService {
             return bookRepository.save(book);
         }
         catch (NoSuchElementException e) {
-            throw new ConstraintViolatedException("Provided wrong id",e);
+            throw new ConsistencyViolatedException("Provided wrong id",e);
         }
     }
 
