@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Book info</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- Book edition -->
+<form id="edit-form" action="book_info.html" th:object="${book}" th:action="@{/edit_book(id=*{id})}"  th:method="post">
+    <h3>Book Info:</h3>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" value="1" th:value="*{id}"/>
+    </div>
+
+    <div th:insert="book_controls :: b_controls">  </div>
+
+    <h4>Comments:</h4>
+
+    <table class="objects">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Text</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="comment : ${comments}" th:object="${comment}">
+            <td th:text="*{id}">
+            <td th:text="*{text}">
+        </tr>
+        </tbody>
+    </table>
+
+</form>
+
+</body>
+</html>
