@@ -1,8 +1,6 @@
 package ru.otus.spring.domain;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -20,7 +18,6 @@ import java.util.List;
 @Entity
 @Table(name = "books_tbl")
 @Data
-@RequiredArgsConstructor
 public class Book  {
     public final static String BOOK_ENTITY_GRAPH = "book-entity-graph";
     @Id
@@ -44,13 +41,30 @@ public class Book  {
     // https://betterjavacode.com/java/a-collection-with-cascadeall-delete-orphan-was-no-longer-referenced-by-the-owning-entity-instance
     @OneToMany(mappedBy = "book",
             orphanRemoval = true)
-    private final List<BookComment> comments = new ArrayList<>();
+    private List<BookComment> comments;
 
     public Book() {
         this.id = null;
         this.name = null;
         this.author = new Author();
         this.genre = new Genre();
+        this.comments = new ArrayList<>();
+    }
+
+    public Book(Long id, String name, Author author, Genre genre, List<BookComment> comments) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.genre = genre;
+        this.comments = comments;
+    }
+
+    public Book(Long id, String name, Author author, Genre genre) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.genre = genre;
+        this.comments = new ArrayList<>();
     }
 
     public static Book createForInsert(String name, Author author, Genre genre) {

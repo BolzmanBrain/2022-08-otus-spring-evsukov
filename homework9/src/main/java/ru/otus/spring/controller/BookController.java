@@ -1,12 +1,10 @@
 package ru.otus.spring.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
@@ -23,16 +21,17 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 public class BookController {
-    private final static String BOOKS_VIEW = "books";
-    private final static String EDIT_BOOK_VIEW = "edit_book";
-    private final static String ADD_BOOK_VIEW = "add_book";
+    public final static String BOOKS_VIEW = "books";
+    public final static String EDIT_BOOK_VIEW = "edit_book";
+    public final static String ADD_BOOK_VIEW = "add_book";
+    public final static String OBJECT_NOT_FOUND = "Object not found";
     private final static String REDIRECT = "redirect:/";
     private final BookService bookService;
     private final AuthorService authorService;
     private final GenreService genreService;
 
     @GetMapping(value = {"/","/books"})
-    public String listPage(Model model) {
+    public String booksPage(Model model) {
         List<BookDto> dtos = bookService.findAll().stream()
                 .map(BookDto::toDto)
                 .collect(Collectors.toList());
@@ -85,9 +84,14 @@ public class BookController {
     @PostMapping("/delete_book")
     public String deleteBook(@RequestParam("id") long id) {
         bookService.deleteById(id);
-        System.out.println("Удаление");
         return REDIRECT;
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNotFound(NotFoundException ex) {
+        return ResponseEntity.badRequest().body(OBJECT_NOT_FOUND);
+    }
+
 
     private void addAuthorsAndGenresToModel(Model model) {
         List<Author> authors = authorService.findAll();
