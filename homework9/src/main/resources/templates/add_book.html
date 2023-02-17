@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Add book</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- Book edition -->
+<form id="add-form" action="add_book.html" th:action="@{/add_book}" th:method="post">
+    <h3>Add book:</h3>
+    <div th:insert="book_controls :: b_controls"></div>
+</form>
+
+</body>
+</html>
