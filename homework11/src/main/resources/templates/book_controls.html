@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Book controls</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<div th:fragment="b_controls">
+    <div class="row">
+        <label for="book-name-input">Name:</label>
+        <input id="book-name-input" name="name" type="text" value=""/>
+    </div>
+
+    <div class="row">
+        <label for="book-author-select">Author name:</label>
+        <select id="book-author-select" name="id_author">
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="book-genre-select">Genre name:</label>
+        <select id="book-genre-select" name="id_genre">
+        </select>
+    </div>
+</div>
+
+</body>
+</html>
