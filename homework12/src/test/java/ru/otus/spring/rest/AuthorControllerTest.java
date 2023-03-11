@@ -6,9 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.otus.spring.LibraryApplication;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.dto.AuthorDto;
+import ru.otus.spring.security.SecurityConfiguration;
 import ru.otus.spring.service.AuthorService;
 
 import java.util.List;
@@ -20,14 +24,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthorController.class)
+@ContextConfiguration(classes = { LibraryApplication.class, SecurityConfiguration.class })
 class AuthorControllerTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
     private AuthorService authorService;
 
+    @WithAnonymousUser
     @Test
-    void shouldGetAuthorsCorrectly() throws Exception {
+    void shouldGetAuthors_Anonymous() throws Exception {
         val authors = getTestAuthors();
         given(authorService.findAll()).willReturn(authors);
 
