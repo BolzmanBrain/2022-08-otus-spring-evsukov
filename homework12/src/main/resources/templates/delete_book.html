@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Add book</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" th:src="@{/actions.js}"></script>
+</head>
+<body>
+
+<form id="add-form">
+    <h3>Are you sure you want to delete the book?</h3>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" value=""/>
+    </div>
+
+    <div class="row">
+        <label for="book-name-input">Name:</label>
+        <input id="book-name-input" name="name" type="text" readonly="readonly" value=""/>
+    </div>
+
+    <div class="row">
+        <button onclick="confirmDelete()" type="button">OK</button>
+        <a href="list.html" th:href="@{/}"><button type="button">Cancel</button></a>
+    </div>
+</form>
+
+<script>
+function confirmDelete() {
+    id = getParamFromUrl("id")
+
+    fetch('/api/v1/books/' + id, {
+      method: 'DELETE',
+    })
+    .then(redirectToStartPage)
+}
+
+function outputBook(book) {
+	const idInput = document.getElementById("id-input");
+	const nameInput = document.getElementById("book-name-input");
+
+	idInput.value = book.id
+	nameInput.value = book.name
+}
+
+async function loadData() {
+    id = getParamFromUrl("id")
+	book = await getBookById(id)
+	outputBook(book)
+}
+</script>
+
+<script>
+    loadData();
+</script>
+
+</body>
+</html>
