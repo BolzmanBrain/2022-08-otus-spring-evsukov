@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all books</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<h3>Books:</h3>
+
+<table class="objects">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<div class="row">
+    <a href="/add_book"><button type="button">Add book</button></a>
+</div>
+
+<script>
+function outputBooks(books) {
+    books.forEach(function (book) {
+        $('tbody').append(`
+            <tr>
+                <td>${book.id}</td>
+                <td>${book.name}</td>
+                <td>
+                    <a href="/edit_book?id=${book.id}">Edit</a>
+                    <a href="/delete_book?id=${book.id}">Delete</a>
+                </td>
+            </tr>
+        `)
+    });
+}
+
+function getBooks(actionAfter) {
+    fetch('/api/v1/books')
+        .then(response => response.json())
+        .then(json => actionAfter(json))
+}
+</script>
+
+<script>
+	getBooks(outputBooks);
+</script>
+
+</body>
+</html>
