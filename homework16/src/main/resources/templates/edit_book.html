@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Book info</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" th:src="@{/actions.js}"></script>
+</head>
+<body>
+
+<!-- Book edition -->
+<form id="edit-form">
+    <h3>Book Info:</h3>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" value="1"/>
+    </div>
+
+    <div th:insert="book_controls :: b_controls">  </div>
+
+    <div class="row">
+        <button onclick="putBook()" type="button">Save</button>
+        <a href="list.html" th:href="@{/}"><button type="button">Cancel</button></a>
+    </div>
+
+    <h4>Comments:</h4>
+
+    <table class="objects">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Text</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</form>
+
+<script>
+function putBook() {
+    const id = document.getElementById("id-input").value;
+	const name = document.getElementById("book-name-input").value;
+	const idAuthor = document.getElementById("book-author-select").value;
+	const idGenre = document.getElementById("book-genre-select").value;
+
+	book = {
+	    id: id,
+		name: name,
+		idAuthor: idAuthor,
+		idGenre: idGenre
+	}
+
+	fetch('/api/v1/books', {
+		method: 'PUT',
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(book)
+	}).then(redirectToStartPage);
+}
+
+function outputBook(book) {
+	const idInput = document.getElementById("id-input");
+	const nameInput = document.getElementById("book-name-input");
+
+	idInput.value = book.id
+	nameInput.value = book.name
+}
+
+function outputComments(comments) {
+    comments.forEach((comment) => {
+        $('tbody').append(`
+            <tr>
+                <td>${comment.id}</td>
+                <td>${comment.text}</td>
+            </tr>
+        `)
+    });
+}
+
+function getComments(actionAfter) {
+    id = getParamFromUrl("id")
+
+    fetch(`/api/v1/books/${id}/comments`)
+        .then(response => response.json())
+        .then(json => actionAfter(json))
+}
+
+async function loadData() {
+    id = getParamFromUrl("id")
+	book = await getBookById(id)
+
+	outputBook(book)
+	getAuthors((x) => outputAuthors(x, book))
+	getGenres((x) => outputGenres(x, book))
+	getComments(outputComments)
+}
+</script>
+
+<script>
+    loadData();
+</script>
+
+</body>
+</html>

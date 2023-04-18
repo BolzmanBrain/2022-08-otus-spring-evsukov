@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Add book</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" th:src="@{/actions.js}"></script>
+</head>
+<body>
+
+<form id="add-form">
+    <h3>Add book:</h3>
+    <div th:insert="book_controls :: b_controls"></div>
+
+    <div class="row">
+        <button onclick="postBook()" type="button">Save</button>
+        <a href="list.html" th:href="@{/}"><button type="button">Cancel</button></a>
+    </div>
+</form>
+
+<script>
+function postBook() {
+	const name = document.getElementById("book-name-input").value;
+	const idAuthor = document.getElementById("book-author-select").value;
+	const idGenre = document.getElementById("book-genre-select").value;
+
+	book = {
+		name: name,
+		idAuthor: idAuthor,
+		idGenre: idGenre
+	}
+
+	fetch('/api/v1/books', {
+		method: 'POST',
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(book)
+	}).then(redirectToStartPage);
+}
+
+function loadData() {
+	getAuthors(outputAuthors);
+	getGenres(outputGenres);
+}
+</script>
+
+<script>
+    loadData();
+</script>
+
+</body>
+</html>
