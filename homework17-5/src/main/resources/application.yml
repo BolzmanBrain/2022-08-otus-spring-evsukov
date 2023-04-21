@@ -1,0 +1,20 @@
+spring:
+  main:
+    allow-circular-references: true
+  data:
+    mongodb:
+      host: mongo:27017
+      database: library
+      #port: 27017
+      #uri: mongodb://mongo:27017/library
+
+server:
+  servlet:
+    context-path: "/"
+  error:
+    include-message: always
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.otus.spring.mongock.changelog
